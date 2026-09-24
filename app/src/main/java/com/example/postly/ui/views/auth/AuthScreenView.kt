@@ -21,17 +21,20 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.postly.ui.theme.PostlyBlue
 import com.example.postly.ui.theme.PostlyText
+import com.example.postly.managers.SessionManager
 
 enum class AuthScreenMode { LOGIN, REGISTER }
 
 @Composable
 fun AuthScreenView(
     mode: AuthScreenMode,
+    session: SessionManager,
     onBack: () -> Unit,
     onSwitchMode: () -> Unit,
+    onAuthenticated: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var submittedMessage by rememberSaveable { mutableStateOf<String?>(null) }
+    LaunchedEffect(session.user) { if (session.isAuthenticated) onAuthenticated() }
     Column(modifier.fillMaxSize().background(Color.White).verticalScroll(rememberScrollState()).padding(top = 34.dp)) {
         Row(Modifier.fillMaxWidth().padding(horizontal = 20.dp), verticalAlignment = Alignment.CenterVertically) {
             IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back") }
@@ -44,11 +47,10 @@ fun AuthScreenView(
         Text(if (mode == AuthScreenMode.LOGIN) "Log In" else "Sign Up", modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp), fontSize = 28.sp, fontWeight = FontWeight.Bold)
         AuthModeHeader(mode)
         if (mode == AuthScreenMode.LOGIN) {
-            LoginView(onSwitchToRegister = onSwitchMode, onLogin = { _, _ -> submittedMessage = "Login service will be connected in the next phase." })
+            LoginView(onSwitchToRegister = onSwitchMode, onLogin = { email, password -> session.login(email, password) }, isLoading = session.isLoading)
         } else {
-            RegisterView(onSwitchToLogin = onSwitchMode, onRegister = { _, _, _ -> submittedMessage = "Registration service will be connected in the next phase." })
+            RegisterView(onSwitchToLogin = onSwitchMode, onRegister = { name, email, password -> session.register(name, email, password) }, isLoading = session.isLoading)
         }
-        submittedMessage?.let { Text(it, modifier = Modifier.padding(horizontal = 16.dp), color = PostlyBlue, fontSize = 13.sp) }
     }
 }
 
