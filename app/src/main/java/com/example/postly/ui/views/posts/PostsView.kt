@@ -20,7 +20,7 @@ import com.example.postly.viewmodels.PostsViewModel
 import kotlinx.coroutines.launch
 
 @Composable
-fun PostsView(viewModel: PostsViewModel, modifier: Modifier = Modifier) {
+fun PostsView(viewModel: PostsViewModel, onPostClick: (String) -> Unit, modifier: Modifier = Modifier) {
     LaunchedEffect(Unit) { viewModel.fetchPosts(reset = true) }
     LazyColumn(modifier.fillMaxSize().background(Color(0xFFF8F9FB)), contentPadding = PaddingValues(horizontal = 16.dp, vertical = 20.dp), verticalArrangement = Arrangement.spacedBy(20.dp)) {
         item { Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) { Text("Recent Posts", fontSize = 30.sp, fontWeight = FontWeight.Bold, color = PostlyText); Text("Explore the most interesting conversations", color = Color.Gray, textAlign = TextAlign.Center) } }
@@ -29,7 +29,7 @@ fun PostsView(viewModel: PostsViewModel, modifier: Modifier = Modifier) {
             viewModel.errorMessage != null && viewModel.posts.isEmpty() -> item { ErrorState(viewModel.errorMessage!!) { viewModel.fetchPosts(reset = true) } }
             viewModel.posts.isEmpty() -> item { Text("No posts yet.", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center, color = Color.Gray) }
             else -> {
-                items(viewModel.posts, key = { it.id }) { PostCardView(it) }
+                items(viewModel.posts, key = { it.id }) { PostCardView(it, onClick = { onPostClick(it.id) }) }
                 if (viewModel.canLoadMore) item { LaunchedEffect(Unit) { viewModel.loadMore() }; LoadingState() }
                 if (viewModel.errorMessage != null) item { ErrorState(viewModel.errorMessage!!) { viewModel.fetchPosts() } }
             }

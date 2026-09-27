@@ -13,6 +13,7 @@ class SessionManager(context: Context) {
     private val apiClient = APIClient(authManager)
     private val authService = AuthService(apiClient, authManager)
     val postService = com.example.postly.services.PostService(apiClient)
+    val commentService = com.example.postly.services.CommentService(apiClient)
 
     var user: User? by mutableStateOf(null)
         private set

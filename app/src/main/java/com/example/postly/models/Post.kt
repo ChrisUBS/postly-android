@@ -9,8 +9,9 @@ data class Post(
     val author: Author,
     val createdAt: String,
     val readTime: Int,
+    val views: Int,
     val likes: Int,
-    val commentsCount: Int,
+    val comments: List<Comment>,
     val coverImage: String?
 ) {
     companion object {
@@ -21,9 +22,12 @@ data class Post(
             author = Author.fromJson(json.optJSONObject("author") ?: JSONObject()),
             createdAt = json.optString("createdAt"),
             readTime = json.optInt("readTime"),
+            views = json.optInt("views"),
             likes = json.optInt("likes"),
-            commentsCount = json.optJSONArray("comments")?.length() ?: json.optInt("comments", 0),
+            comments = json.optJSONArray("comments")?.let { array -> List(array.length()) { Comment.fromJson(array.getJSONObject(it)) } }.orEmpty(),
             coverImage = json.optNullableString("coverImage")
         )
     }
+
+    val commentsCount: Int get() = comments.size
 }

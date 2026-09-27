@@ -28,8 +28,8 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 @Composable
-fun PostCardView(post: Post, modifier: Modifier = Modifier) {
-    Card(modifier.fillMaxWidth().shadow(4.dp, RoundedCornerShape(12.dp)), shape = RoundedCornerShape(12.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
+fun PostCardView(post: Post, onClick: () -> Unit = {}, modifier: Modifier = Modifier) {
+    Card(onClick = onClick, modifier = modifier.fillMaxWidth().shadow(4.dp, RoundedCornerShape(12.dp)), shape = RoundedCornerShape(12.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
         Column {
             post.coverImage?.takeIf { it.isNotBlank() }?.let { imageUrl ->
                 AsyncImage(
