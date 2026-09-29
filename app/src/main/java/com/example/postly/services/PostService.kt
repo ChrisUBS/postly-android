@@ -14,6 +14,12 @@ class PostService(private val apiClient: APIClient) {
     }
 
     suspend fun getPostById(id: String): Post = Post.fromJson(apiClient.request(Endpoint.GetPost(id)))
+    suspend fun getMyPosts(): PaginatedPosts {
+        val response = apiClient.request(Endpoint.GetMyPosts, requiresAuth = true)
+        val posts = response.optJSONArray("posts")?.let { array -> List(array.length()) { Post.fromJson(array.getJSONObject(it)) } }.orEmpty()
+        return PaginatedPosts(posts, Pagination.fromJson(response.optJSONObject("pagination") ?: org.json.JSONObject()))
+    }
+    suspend fun deletePost(id: String) { apiClient.request(Endpoint.DeletePost(id), method = "DELETE", requiresAuth = true) }
     suspend fun likePost(id: String) { apiClient.request(Endpoint.LikePost(id), method = "POST", requiresAuth = true) }
     suspend fun unlikePost(id: String) { apiClient.request(Endpoint.LikePost(id), method = "DELETE", requiresAuth = true) }
     suspend fun checkLike(id: String): Boolean = apiClient.request(Endpoint.LikePost(id), requiresAuth = true).optBoolean("liked")

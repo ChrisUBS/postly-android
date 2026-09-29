@@ -16,4 +16,5 @@ sealed class Endpoint(val path: String) {
     data class CreateComment(val postId: String) : Endpoint("posts/$postId/comments")
     data class DeleteComment(val postId: String, val commentId: String) : Endpoint("posts/$postId/comments/$commentId")
     data object GetMyPosts : Endpoint("users/me/posts")
+    data class DeletePost(val id: String) : Endpoint("posts/$id")
 }

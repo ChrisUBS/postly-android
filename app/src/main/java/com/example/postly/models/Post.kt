@@ -12,6 +12,7 @@ data class Post(
     val views: Int,
     val likes: Int,
     val comments: List<Comment>,
+    val status: String,
     val coverImage: String?
 ) {
     companion object {
@@ -25,6 +26,7 @@ data class Post(
             views = json.optInt("views"),
             likes = json.optInt("likes"),
             comments = json.optJSONArray("comments")?.let { array -> List(array.length()) { Comment.fromJson(array.getJSONObject(it)) } }.orEmpty(),
+            status = json.optString("status", "published"),
             coverImage = json.optNullableString("coverImage")
         )
     }

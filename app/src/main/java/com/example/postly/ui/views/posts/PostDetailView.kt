@@ -9,6 +9,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -121,7 +122,7 @@ private fun PostContent(post: Post, session: SessionManager, liked: Boolean, lik
         }
         Surface(shape = RoundedCornerShape(16.dp), color = Color.White, shadowElevation = 4.dp) { Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) { Icon(Icons.Default.ChatBubbleOutline, null, tint = PostlyBlue); Spacer(Modifier.width(8.dp)); Text("Comments (${post.comments.size})", fontSize = 22.sp, fontWeight = FontWeight.Bold) }
-            if (session.isAuthenticated) { OutlinedTextField(newComment, onCommentChange, Modifier.fillMaxWidth().height(120.dp), placeholder = { Text("Write a comment...") }, shape = RoundedCornerShape(10.dp), keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done)); Button(onSend, Modifier.align(Alignment.End), enabled = newComment.trim().isNotEmpty() && !sending, colors = ButtonDefaults.buttonColors(containerColor = PostlyBlue, contentColor = Color.White)) { if (sending) CircularProgressIndicator(Modifier.size(18.dp), color = Color.White, strokeWidth = 2.dp) else { Icon(Icons.Default.Send, null); Spacer(Modifier.width(8.dp)); Text("Comment") } } } else Text("Sign in to comment", Modifier.fillMaxWidth().background(Color(0xFFF2F2F7), RoundedCornerShape(10.dp)).padding(16.dp), textAlign = TextAlign.Center, color = MutedText)
+            if (session.isAuthenticated) { OutlinedTextField(newComment, onCommentChange, Modifier.fillMaxWidth().height(120.dp), placeholder = { Text("Write a comment...") }, shape = RoundedCornerShape(10.dp), keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done)); Button(onSend, Modifier.align(Alignment.End), enabled = newComment.trim().isNotEmpty() && !sending, colors = ButtonDefaults.buttonColors(containerColor = PostlyBlue, contentColor = Color.White)) { if (sending) CircularProgressIndicator(Modifier.size(18.dp), color = Color.White, strokeWidth = 2.dp) else { Icon(Icons.AutoMirrored.Filled.Send, null); Spacer(Modifier.width(8.dp)); Text("Comment") } } } else Text("Sign in to comment", Modifier.fillMaxWidth().background(Color(0xFFF2F2F7), RoundedCornerShape(10.dp)).padding(16.dp), textAlign = TextAlign.Center, color = MutedText)
             if (post.comments.isEmpty()) Text("There are no comments yet. Be the first to comment!", Modifier.fillMaxWidth().padding(vertical = 16.dp), color = MutedText, textAlign = TextAlign.Center) else post.comments.forEach { comment -> CommentRow(comment, canDelete = session.user?.userId == comment.author.userId || session.user?.userId == post.author.userId, deleting = deletingId == comment.id, onDelete = { onDelete(comment.id) }) }
         } }
     }

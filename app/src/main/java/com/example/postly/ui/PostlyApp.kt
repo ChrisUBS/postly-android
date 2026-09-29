@@ -26,11 +26,13 @@ import com.example.postly.managers.SessionManager
 import com.example.postly.ui.views.posts.PostsView
 import com.example.postly.viewmodels.PostsViewModel
 import com.example.postly.ui.views.posts.PostDetailView
+import com.example.postly.ui.views.user.ProfileView
 
 @Composable
 fun PostlyApp() {
     var screen by remember { mutableStateOf(AppScreen.HOME) }; var menuOpen by remember { mutableStateOf(false) }; var searchExpanded by remember { mutableStateOf(false) }; var query by remember { mutableStateOf("") }
     var selectedPostId by remember { mutableStateOf<String?>(null) }
+    var postDetailBackScreen by remember { mutableStateOf(AppScreen.POSTS) }
     val context = LocalContext.current.applicationContext
     val session = remember(context) { SessionManager(context) }
     val postsViewModel = remember(session) { PostsViewModel(session.postService) }
@@ -53,11 +55,15 @@ fun PostlyApp() {
             NavbarView(searchExpanded, query, menuOpen, { query = it }, { searchExpanded = !searchExpanded }, { if (query.isNotBlank()) { screen = AppScreen.SEARCH; menuOpen = false } }, { menuOpen = !menuOpen })
             when (screen) {
                 AppScreen.HOME -> WelcomeView(onJoin = { screen = AppScreen.REGISTER })
-                AppScreen.POSTS -> PostsView(postsViewModel, onPostClick = { selectedPostId = it; screen = AppScreen.POST_DETAIL })
-                AppScreen.POST_DETAIL -> selectedPostId?.let { PostDetailView(it, session, onBack = { screen = AppScreen.POSTS }) }
+                AppScreen.POSTS -> PostsView(postsViewModel, onPostClick = { selectedPostId = it; postDetailBackScreen = AppScreen.POSTS; screen = AppScreen.POST_DETAIL })
+                AppScreen.POST_DETAIL -> selectedPostId?.let { PostDetailView(it, session, onBack = { screen = postDetailBackScreen }) }
                 AppScreen.SEARCH -> PlaceholderScreen("Search results", "Resultados para “$query”")
                 AppScreen.CREATE_POST -> PlaceholderScreen("Create Post", "Create post will be migrated next.")
-                AppScreen.PROFILE -> PlaceholderScreen("My Profile", "Your profile will be migrated next.")
+                AppScreen.PROFILE -> ProfileView(
+                    session = session,
+                    onCreatePost = { screen = AppScreen.CREATE_POST },
+                    onPostClick = { selectedPostId = it; postDetailBackScreen = AppScreen.PROFILE; screen = AppScreen.POST_DETAIL }
+                )
                 else -> Unit
             }
         }
