@@ -12,6 +12,9 @@ val secretsProperties = Properties().apply {
 val apiBaseUrl = secretsProperties.getProperty("API_BASE_URL", "")
     .replace("\\", "\\\\")
     .replace("\"", "\\\"")
+val pexelsApiKey = secretsProperties.getProperty("PEXELS_API_KEY", "")
+    .replace("\\", "\\\\")
+    .replace("\"", "\\\"")
 
 android {
     namespace = "com.example.postly"
@@ -26,6 +29,7 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField("String", "API_BASE_URL", "\"$apiBaseUrl\"")
+        buildConfigField("String", "PEXELS_API_KEY", "\"$pexelsApiKey\"")
     }
 
     buildTypes {

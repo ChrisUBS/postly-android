@@ -27,11 +27,14 @@ import com.example.postly.ui.views.posts.PostsView
 import com.example.postly.viewmodels.PostsViewModel
 import com.example.postly.ui.views.posts.PostDetailView
 import com.example.postly.ui.views.user.ProfileView
+import com.example.postly.ui.views.posts.CreatePostView
+import com.example.postly.ui.views.posts.EditPostView
 
 @Composable
 fun PostlyApp() {
     var screen by remember { mutableStateOf(AppScreen.HOME) }; var menuOpen by remember { mutableStateOf(false) }; var searchExpanded by remember { mutableStateOf(false) }; var query by remember { mutableStateOf("") }
     var selectedPostId by remember { mutableStateOf<String?>(null) }
+    var editingPostId by remember { mutableStateOf<String?>(null) }
     var postDetailBackScreen by remember { mutableStateOf(AppScreen.POSTS) }
     val context = LocalContext.current.applicationContext
     val session = remember(context) { SessionManager(context) }
@@ -58,11 +61,13 @@ fun PostlyApp() {
                 AppScreen.POSTS -> PostsView(postsViewModel, onPostClick = { selectedPostId = it; postDetailBackScreen = AppScreen.POSTS; screen = AppScreen.POST_DETAIL })
                 AppScreen.POST_DETAIL -> selectedPostId?.let { PostDetailView(it, session, onBack = { screen = postDetailBackScreen }) }
                 AppScreen.SEARCH -> PlaceholderScreen("Search results", "Resultados para “$query”")
-                AppScreen.CREATE_POST -> PlaceholderScreen("Create Post", "Create post will be migrated next.")
+                AppScreen.CREATE_POST -> CreatePostView(session, onPostCreated = { screen = AppScreen.PROFILE }, onBack = { screen = AppScreen.PROFILE })
+                AppScreen.EDIT_POST -> editingPostId?.let { EditPostView(it, session, onPostUpdated = { screen = AppScreen.PROFILE }, onBack = { screen = AppScreen.PROFILE }) }
                 AppScreen.PROFILE -> ProfileView(
                     session = session,
                     onCreatePost = { screen = AppScreen.CREATE_POST },
-                    onPostClick = { selectedPostId = it; postDetailBackScreen = AppScreen.PROFILE; screen = AppScreen.POST_DETAIL }
+                    onPostClick = { selectedPostId = it; postDetailBackScreen = AppScreen.PROFILE; screen = AppScreen.POST_DETAIL },
+                    onEditPost = { editingPostId = it; screen = AppScreen.EDIT_POST }
                 )
                 else -> Unit
             }

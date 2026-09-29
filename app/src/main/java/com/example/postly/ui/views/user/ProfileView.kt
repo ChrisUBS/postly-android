@@ -31,7 +31,7 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 @Composable
-fun ProfileView(session: SessionManager, onCreatePost: () -> Unit, onPostClick: (String) -> Unit, modifier: Modifier = Modifier) {
+fun ProfileView(session: SessionManager, onCreatePost: () -> Unit, onPostClick: (String) -> Unit, onEditPost: (String) -> Unit, modifier: Modifier = Modifier) {
     var posts by remember { mutableStateOf<List<Post>>(emptyList()) }
     var loading by remember { mutableStateOf(true) }
     var error by remember { mutableStateOf<String?>(null) }
@@ -50,7 +50,7 @@ fun ProfileView(session: SessionManager, onCreatePost: () -> Unit, onPostClick: 
 
     Column(modifier.fillMaxSize().background(Color(0xFFF8F9FB)).verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(20.dp)) {
         ProfileCard(session, onCreatePost)
-        PublicationsSection(posts, loading, error, deletingId, onCreatePost, onPostClick, onRetry = { scope.launch { loadPosts() } }, onDelete = { pendingDelete = it })
+        PublicationsSection(posts, loading, error, deletingId, onCreatePost, onPostClick, onEditPost, onRetry = { scope.launch { loadPosts() } }, onDelete = { pendingDelete = it })
     }
     pendingDelete?.let { post ->
         AlertDialog(
@@ -90,7 +90,7 @@ private fun ProfileCard(session: SessionManager, onCreatePost: () -> Unit) {
 }
 
 @Composable
-private fun PublicationsSection(posts: List<Post>, loading: Boolean, error: String?, deletingId: String?, onCreatePost: () -> Unit, onPostClick: (String) -> Unit, onRetry: () -> Unit, onDelete: (Post) -> Unit) {
+private fun PublicationsSection(posts: List<Post>, loading: Boolean, error: String?, deletingId: String?, onCreatePost: () -> Unit, onPostClick: (String) -> Unit, onEditPost: (String) -> Unit, onRetry: () -> Unit, onDelete: (Post) -> Unit) {
     Surface(shape = RoundedCornerShape(16.dp), color = Color.White, shadowElevation = 4.dp) {
         Column(Modifier.fillMaxWidth().padding(20.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) { Icon(Icons.Default.Description, null, tint = PostlyBlue); Spacer(Modifier.width(10.dp)); Text("My publications", fontSize = 23.sp, fontWeight = FontWeight.Bold, color = PostlyText) }
@@ -98,7 +98,7 @@ private fun PublicationsSection(posts: List<Post>, loading: Boolean, error: Stri
                 loading -> Box(Modifier.fillMaxWidth().padding(36.dp), contentAlignment = Alignment.Center) { CircularProgressIndicator(color = PostlyBlue) }
                 error != null -> Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) { Text(error, color = MaterialTheme.colorScheme.error); TextButton(onClick = onRetry) { Text("Retry") } }
                 posts.isEmpty() -> EmptyPublications(onCreatePost)
-                else -> posts.forEachIndexed { index, post -> PublicationRow(post, deletingId == post.id, onPostClick, onDelete); if (index < posts.lastIndex) HorizontalDivider() }
+                else -> posts.forEachIndexed { index, post -> PublicationRow(post, deletingId == post.id, onPostClick, onEditPost, onDelete); if (index < posts.lastIndex) HorizontalDivider() }
             }
         }
     }
@@ -113,11 +113,12 @@ private fun EmptyPublications(onCreatePost: () -> Unit) {
 }
 
 @Composable
-private fun PublicationRow(post: Post, deleting: Boolean, onPostClick: (String) -> Unit, onDelete: (Post) -> Unit) {
+private fun PublicationRow(post: Post, deleting: Boolean, onPostClick: (String) -> Unit, onEditPost: (String) -> Unit, onDelete: (Post) -> Unit) {
     Column(Modifier.fillMaxWidth().padding(vertical = 5.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(post.title, modifier = Modifier.weight(1f), fontWeight = FontWeight.Bold, color = PostlyText, maxLines = 2, overflow = TextOverflow.Ellipsis)
             IconButton(onClick = { onPostClick(post.id) }) { Icon(Icons.Default.Visibility, "View", tint = MutedText) }
+            IconButton(onClick = { onEditPost(post.id) }) { Icon(Icons.Default.Edit, "Edit", tint = MutedText) }
             IconButton(onClick = { onDelete(post) }, enabled = !deleting) { if (deleting) CircularProgressIndicator(Modifier.size(19.dp), strokeWidth = 2.dp) else Icon(Icons.Default.DeleteOutline, "Delete", tint = MaterialTheme.colorScheme.error) }
         }
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
