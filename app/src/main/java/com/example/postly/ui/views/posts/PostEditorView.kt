@@ -6,7 +6,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.FormatAlignLeft
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -35,7 +34,7 @@ import kotlinx.coroutines.delay
 enum class PostEditorMode { CREATE, EDIT }
 
 @Composable
-fun PostEditorView(mode: PostEditorMode, session: SessionManager, postId: String? = null, onDone: () -> Unit, onBack: () -> Unit, modifier: Modifier = Modifier) {
+fun PostEditorView(mode: PostEditorMode, session: SessionManager, postId: String? = null, onDone: () -> Unit, onCancel: () -> Unit, modifier: Modifier = Modifier) {
     var title by rememberSaveable { mutableStateOf("") }
     var content by rememberSaveable { mutableStateOf("") }
     var coverImage by rememberSaveable { mutableStateOf("") }
@@ -68,12 +67,8 @@ fun PostEditorView(mode: PostEditorMode, session: SessionManager, postId: String
     }
 
     Column(modifier.fillMaxSize().background(Color(0xFFF8F9FB))) {
-        Row(Modifier.fillMaxWidth().background(Color.White).padding(horizontal = 8.dp, vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
-            IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back") }
-            Text(if (mode == PostEditorMode.CREATE) "Create post" else "Edit post", fontSize = 20.sp, fontWeight = FontWeight.SemiBold, color = PostlyText)
-        }
         if (loadingPost) Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator(color = PostlyBlue) }
-        else EditorContent(mode, title, content, coverImage, status, saving, error, suggestedImages, loadingImages, { title = it }, { content = it }, { coverImage = it }, { status = it }, onCancel = onBack, onSave = {
+        else EditorContent(mode, title, content, coverImage, status, saving, error, suggestedImages, loadingImages, { title = it }, { content = it }, { coverImage = it }, { status = it }, onCancel = onCancel, onSave = {
             val cleanTitle = title.trim(); val cleanContent = content.trim()
             if (cleanTitle.isEmpty() || cleanContent.isEmpty()) {
                 error = "Title and content are required."
@@ -95,7 +90,7 @@ fun PostEditorView(mode: PostEditorMode, session: SessionManager, postId: String
 @Composable
 private fun EditorContent(mode: PostEditorMode, title: String, content: String, coverImage: String, status: String, saving: Boolean, error: String?, suggestedImages: List<PexelsPhoto>, loadingImages: Boolean, onTitleChange: (String) -> Unit, onContentChange: (String) -> Unit, onCoverChange: (String) -> Unit, onStatusChange: (String) -> Unit, onCancel: () -> Unit, onSave: () -> Unit) {
     val words = content.trim().split(Regex("\\s+")).filter { it.isNotBlank() }.size
-    Column(Modifier.verticalScroll(rememberScrollState()).padding(horizontal = 20.dp, vertical = 24.dp), verticalArrangement = Arrangement.spacedBy(20.dp)) {
+    Column(Modifier.verticalScroll(rememberScrollState()).padding(horizontal = 20.dp, vertical = 20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
             Icon(if (mode == PostEditorMode.CREATE) Icons.Default.Create else Icons.Default.Edit, null, tint = PostlyBlue, modifier = Modifier.size(30.dp))
             Text(if (mode == PostEditorMode.CREATE) "Create new publication" else "Edit publication", fontSize = 25.sp, fontWeight = FontWeight.Bold, color = PostlyText)

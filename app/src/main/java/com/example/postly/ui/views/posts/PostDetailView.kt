@@ -60,14 +60,10 @@ fun PostDetailView(postId: String, session: SessionManager, onBack: () -> Unit, 
     LaunchedEffect(postId) { load() }
 
     Column(modifier.fillMaxSize().background(Color(0xFFF8F9FB))) {
-        Row(Modifier.fillMaxWidth().background(Color.White).padding(horizontal = 8.dp, vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
-            IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back") }
-            Text("Post", fontWeight = FontWeight.SemiBold, fontSize = 20.sp, color = PostlyText)
-        }
         when {
-            loading -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator(color = PostlyBlue) }
-            error != null -> ErrorContent(error!!) { scope.launch { load() } }
-            post != null -> PostContent(post!!, session, liked, liking, newComment, sending, deletingId, { newComment = it }, { scope.launch {
+            loading -> LoadingContent(onBack)
+            error != null -> ErrorContent(error!!, onBack) { scope.launch { load() } }
+            post != null -> PostContent(post!!, session, liked, liking, newComment, sending, deletingId, onBack, { newComment = it }, { scope.launch {
                 if (!session.isAuthenticated) { error = "Sign in to comment."; return@launch }
                 sending = true
                 runCatching { session.commentService.createComment(post!!.id, newComment.trim()) }.onSuccess { created -> post = post!!.copy(comments = post!!.comments + created); newComment = "" }.onFailure { error = it.message ?: "Unable to post your comment." }
@@ -105,8 +101,9 @@ fun PostDetailView(postId: String, session: SessionManager, onBack: () -> Unit, 
 }
 
 @Composable
-private fun PostContent(post: Post, session: SessionManager, liked: Boolean, liking: Boolean, newComment: String, sending: Boolean, deletingId: String?, onCommentChange: (String) -> Unit, onSend: () -> Unit, onLike: () -> Unit, onDelete: (String) -> Unit) {
-    Column(Modifier.verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(20.dp)) {
+private fun PostContent(post: Post, session: SessionManager, liked: Boolean, liking: Boolean, newComment: String, sending: Boolean, deletingId: String?, onBack: () -> Unit, onCommentChange: (String) -> Unit, onSend: () -> Unit, onLike: () -> Unit, onDelete: (String) -> Unit) {
+    Column(Modifier.verticalScroll(rememberScrollState()).padding(horizontal = 16.dp, vertical = 4.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        CompactBackButton(onBack)
         Surface(shape = RoundedCornerShape(16.dp), color = Color.White, shadowElevation = 4.dp) {
             Column {
                 post.coverImage?.takeIf { it.isNotBlank() }?.let { AsyncImage(it, "Cover image", Modifier.fillMaxWidth().heightIn(max = 300.dp).clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)), contentScale = ContentScale.Fit) }
@@ -147,5 +144,7 @@ private fun CommentRow(comment: Comment, canDelete: Boolean, deleting: Boolean, 
 }
 @Composable private fun Avatar(author: Author, size: Int = 42) { author.profilePicture?.takeIf { it.isNotBlank() }?.let { AsyncImage(it, "${author.name} profile image", Modifier.size(size.dp).clip(CircleShape), contentScale = ContentScale.Crop) } ?: Box(Modifier.size(size.dp).background(Color(0xFFE5E5EA), CircleShape), contentAlignment = Alignment.Center) { Text(author.name.split(" ").take(2).joinToString("") { it.take(1) }.uppercase(), color = MutedText, fontWeight = FontWeight.Bold) } }
 @Composable private fun MetaRow(icon: androidx.compose.ui.graphics.vector.ImageVector, text: String) { Row(verticalAlignment = Alignment.CenterVertically) { Icon(icon, null, tint = MutedText, modifier = Modifier.size(17.dp)); Spacer(Modifier.width(8.dp)); Text(text, color = MutedText, fontSize = 14.sp) } }
-@Composable private fun ErrorContent(message: String, retry: () -> Unit) { Column(Modifier.fillMaxSize().padding(28.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) { Text(message, color = MaterialTheme.colorScheme.error, textAlign = TextAlign.Center); TextButton(onClick = retry) { Text("Retry") } } }
+@Composable private fun CompactBackButton(onBack: () -> Unit) { IconButton(onClick = onBack, modifier = Modifier.size(40.dp)) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back") } }
+@Composable private fun LoadingContent(onBack: () -> Unit) { Column(Modifier.fillMaxSize().padding(4.dp)) { CompactBackButton(onBack); Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator(color = PostlyBlue) } } }
+@Composable private fun ErrorContent(message: String, onBack: () -> Unit, retry: () -> Unit) { Column(Modifier.fillMaxSize().padding(4.dp)) { CompactBackButton(onBack); Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) { Text(message, color = MaterialTheme.colorScheme.error, textAlign = TextAlign.Center); TextButton(onClick = retry) { Text("Retry") } } } }
 private fun detailDate(value: String): String = runCatching { Instant.parse(value).atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("MMMM dd, yyyy · h:mm a")) }.getOrDefault(value.take(10))

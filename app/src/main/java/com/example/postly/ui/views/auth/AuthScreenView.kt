@@ -6,8 +6,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Chat
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -20,7 +18,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.postly.ui.theme.PostlyBlue
-import com.example.postly.ui.theme.PostlyText
 import com.example.postly.managers.SessionManager
 
 enum class AuthScreenMode { LOGIN, REGISTER }
@@ -29,21 +26,12 @@ enum class AuthScreenMode { LOGIN, REGISTER }
 fun AuthScreenView(
     mode: AuthScreenMode,
     session: SessionManager,
-    onBack: () -> Unit,
     onSwitchMode: () -> Unit,
     onAuthenticated: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     LaunchedEffect(session.user) { if (session.isAuthenticated) onAuthenticated() }
-    Column(modifier.fillMaxSize().background(Color.White).verticalScroll(rememberScrollState()).padding(top = 34.dp)) {
-        Row(Modifier.fillMaxWidth().padding(horizontal = 20.dp), verticalAlignment = Alignment.CenterVertically) {
-            IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back") }
-            Spacer(Modifier.weight(1f))
-            Icon(Icons.AutoMirrored.Filled.Chat, null, tint = PostlyBlue, modifier = Modifier.size(28.dp))
-            Spacer(Modifier.width(8.dp))
-            Text("Postly", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = PostlyText)
-            Spacer(Modifier.weight(1f)); Spacer(Modifier.size(48.dp))
-        }
+    Column(modifier.fillMaxSize().background(Color.White).verticalScroll(rememberScrollState()).padding(top = 20.dp)) {
         Text(if (mode == AuthScreenMode.LOGIN) "Log In" else "Sign Up", modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp), fontSize = 28.sp, fontWeight = FontWeight.Bold)
         AuthModeHeader(mode)
         if (mode == AuthScreenMode.LOGIN) {

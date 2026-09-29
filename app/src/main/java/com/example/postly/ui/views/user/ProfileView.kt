@@ -7,6 +7,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -31,7 +32,7 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 @Composable
-fun ProfileView(session: SessionManager, onCreatePost: () -> Unit, onPostClick: (String) -> Unit, onEditPost: (String) -> Unit, modifier: Modifier = Modifier) {
+fun ProfileView(session: SessionManager, onCreatePost: () -> Unit, onPostClick: (String) -> Unit, onEditPost: (String) -> Unit, onLogout: () -> Unit, modifier: Modifier = Modifier) {
     var posts by remember { mutableStateOf<List<Post>>(emptyList()) }
     var loading by remember { mutableStateOf(true) }
     var error by remember { mutableStateOf<String?>(null) }
@@ -49,7 +50,7 @@ fun ProfileView(session: SessionManager, onCreatePost: () -> Unit, onPostClick: 
     LaunchedEffect(Unit) { loadPosts() }
 
     Column(modifier.fillMaxSize().background(Color(0xFFF8F9FB)).verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(20.dp)) {
-        ProfileCard(session, onCreatePost)
+        ProfileCard(session, onCreatePost, onLogout)
         PublicationsSection(posts, loading, error, deletingId, onCreatePost, onPostClick, onEditPost, onRetry = { scope.launch { loadPosts() } }, onDelete = { pendingDelete = it })
     }
     pendingDelete?.let { post ->
@@ -75,7 +76,7 @@ fun ProfileView(session: SessionManager, onCreatePost: () -> Unit, onPostClick: 
 }
 
 @Composable
-private fun ProfileCard(session: SessionManager, onCreatePost: () -> Unit) {
+private fun ProfileCard(session: SessionManager, onCreatePost: () -> Unit, onLogout: () -> Unit) {
     val user = session.user
     Surface(shape = RoundedCornerShape(16.dp), color = Color.White, shadowElevation = 6.dp) {
         Column(Modifier.fillMaxWidth().padding(20.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -84,6 +85,9 @@ private fun ProfileCard(session: SessionManager, onCreatePost: () -> Unit) {
             user?.email?.takeIf { it.isNotBlank() }?.let { Text(it, color = MutedText) }
             Button(onClick = onCreatePost, modifier = Modifier.fillMaxWidth().padding(top = 8.dp), shape = RoundedCornerShape(12.dp), colors = ButtonDefaults.buttonColors(containerColor = PostlyBlue, contentColor = Color.White)) {
                 Icon(Icons.Default.Create, null); Spacer(Modifier.width(8.dp)); Text("New post")
+            }
+            OutlinedButton(onClick = onLogout, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp), colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFFFF3B30))) {
+                Icon(Icons.AutoMirrored.Filled.Logout, null); Spacer(Modifier.width(8.dp)); Text("Log Out")
             }
         }
     }
@@ -119,7 +123,7 @@ private fun PublicationRow(post: Post, deleting: Boolean, onPostClick: (String) 
             Text(post.title, modifier = Modifier.weight(1f), fontWeight = FontWeight.Bold, color = PostlyText, maxLines = 2, overflow = TextOverflow.Ellipsis)
             IconButton(onClick = { onPostClick(post.id) }) { Icon(Icons.Default.Visibility, "View", tint = MutedText) }
             IconButton(onClick = { onEditPost(post.id) }) { Icon(Icons.Default.Edit, "Edit", tint = MutedText) }
-            IconButton(onClick = { onDelete(post) }, enabled = !deleting) { if (deleting) CircularProgressIndicator(Modifier.size(19.dp), strokeWidth = 2.dp) else Icon(Icons.Default.DeleteOutline, "Delete", tint = MaterialTheme.colorScheme.error) }
+            IconButton(onClick = { onDelete(post) }, enabled = !deleting) { if (deleting) CircularProgressIndicator(Modifier.size(19.dp), strokeWidth = 2.dp) else Icon(Icons.Default.DeleteOutline, "Delete", tint = Color(0xFFFF3B30)) }
         }
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
             Text(shortDate(post.createdAt), color = MutedText, fontSize = 12.sp)

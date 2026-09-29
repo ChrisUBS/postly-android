@@ -18,7 +18,7 @@ fun EditPostView(
         session = session,
         postId = postId,
         onDone = onPostUpdated,
-        onBack = onBack,
+        onCancel = onBack,
         modifier = modifier
     )
 }

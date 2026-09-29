@@ -16,7 +16,7 @@ fun CreatePostView(
         mode = PostEditorMode.CREATE,
         session = session,
         onDone = onPostCreated,
-        onBack = onBack,
+        onCancel = onBack,
         modifier = modifier
     )
 }
