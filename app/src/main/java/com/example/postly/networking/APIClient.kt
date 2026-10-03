@@ -8,8 +8,12 @@ import org.json.JSONObject
 import java.net.HttpURLConnection
 import java.net.URL
 
-class APIClient(private val authManager: AuthManager) {
-    suspend fun request(endpoint: Endpoint, method: String = "GET", body: JSONObject? = null, requiresAuth: Boolean = false): JSONObject = withContext(Dispatchers.IO) {
+interface ApiRequester {
+    suspend fun request(endpoint: Endpoint, method: String = "GET", body: JSONObject? = null, requiresAuth: Boolean = false): JSONObject
+}
+
+class APIClient(private val authManager: AuthManager) : ApiRequester {
+    override suspend fun request(endpoint: Endpoint, method: String, body: JSONObject?, requiresAuth: Boolean): JSONObject = withContext(Dispatchers.IO) {
         val baseUrl = BuildConfig.API_BASE_URL.trim()
         if (baseUrl.isBlank()) throw APIException.Configuration("API_BASE_URL is missing. Set it in secrets.properties.")
         val url = URL(baseUrl.trimEnd('/') + "/" + endpoint.path)
