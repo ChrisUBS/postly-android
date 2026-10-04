@@ -10,10 +10,16 @@ import java.net.URL
 
 interface ApiRequester {
     suspend fun request(endpoint: Endpoint, method: String = "GET", body: JSONObject? = null, requiresAuth: Boolean = false): JSONObject
+    suspend fun requestRaw(endpoint: Endpoint, method: String = "GET", body: JSONObject? = null, requiresAuth: Boolean = false): String
 }
 
 class APIClient(private val authManager: AuthManager) : ApiRequester {
     override suspend fun request(endpoint: Endpoint, method: String, body: JSONObject?, requiresAuth: Boolean): JSONObject = withContext(Dispatchers.IO) {
+        val response = requestRaw(endpoint, method, body, requiresAuth)
+        if (response.isBlank()) JSONObject() else JSONObject(response)
+    }
+
+    override suspend fun requestRaw(endpoint: Endpoint, method: String, body: JSONObject?, requiresAuth: Boolean): String = withContext(Dispatchers.IO) {
         val baseUrl = BuildConfig.API_BASE_URL.trim()
         if (baseUrl.isBlank()) throw APIException.Configuration("API_BASE_URL is missing. Set it in secrets.properties.")
         val url = URL(baseUrl.trimEnd('/') + "/" + endpoint.path)
@@ -34,7 +40,7 @@ class APIClient(private val authManager: AuthManager) : ApiRequester {
             val response = (if (status in 200..299) connection.inputStream else connection.errorStream)
                 ?.bufferedReader()?.use { it.readText() }.orEmpty()
             if (status !in 200..299) throw APIException.Server(status, response.ifBlank { "Request failed." })
-            if (response.isBlank()) JSONObject() else JSONObject(response)
+            response
         } finally {
             connection.disconnect()
         }
