@@ -5,6 +5,7 @@ import com.example.postly.models.Pagination
 import com.example.postly.models.Post
 import com.example.postly.networking.ApiRequester
 import com.example.postly.networking.Endpoint
+import org.json.JSONArray
 import org.json.JSONObject
 
 class PostService(private val apiClient: ApiRequester) {
@@ -21,6 +22,19 @@ class PostService(private val apiClient: ApiRequester) {
     suspend fun updatePost(id: String, title: String, content: String, status: String, coverImage: String?): Post = Post.fromJson(
         apiClient.request(Endpoint.UpdatePost(id), method = "PUT", body = postBody(title, content, status, coverImage), requiresAuth = true)
     )
+    suspend fun searchPosts(query: String): PaginatedPosts {
+        val response = apiClient.requestRaw(Endpoint.SearchPosts(query)).trim()
+        return if (response.startsWith("[")) {
+            val array = JSONArray(response)
+            val posts = List(array.length()) { Post.fromJson(array.getJSONObject(it)) }
+            PaginatedPosts(posts, Pagination(total = posts.size, page = 1, limit = posts.size.coerceAtLeast(1), totalPages = 1))
+        } else {
+            val json = JSONObject(response)
+            val posts = json.optJSONArray("posts")?.let { array -> List(array.length()) { Post.fromJson(array.getJSONObject(it)) } }.orEmpty()
+            PaginatedPosts(posts, Pagination.fromJson(json.optJSONObject("pagination") ?: JSONObject()))
+        }
+    }
+
     suspend fun getMyPosts(): PaginatedPosts {
         val response = apiClient.request(Endpoint.GetMyPosts, requiresAuth = true)
         val posts = response.optJSONArray("posts")?.let { array -> List(array.length()) { Post.fromJson(array.getJSONObject(it)) } }.orEmpty()
