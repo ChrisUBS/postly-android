@@ -14,6 +14,14 @@ class AuthService(private val apiClient: APIClient, private val authManager: Aut
         return response
     }
 
+    suspend fun loginWithGoogle(idToken: String): AuthResponse {
+        val response = AuthResponse.fromJson(
+            apiClient.request(Endpoint.LoginGoogle, "POST", JSONObject().put("token", idToken))
+        )
+        authManager.accessToken = response.accessToken
+        return response
+    }
+
     suspend fun register(name: String, email: String, password: String): AuthResponse {
         val response = AuthResponse.fromJson(apiClient.request(Endpoint.RegisterEmail, "POST", JSONObject().put("name", name).put("email", email).put("password", password)))
         authManager.accessToken = response.accessToken

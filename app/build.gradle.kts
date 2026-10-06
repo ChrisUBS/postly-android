@@ -15,6 +15,9 @@ val apiBaseUrl = secretsProperties.getProperty("API_BASE_URL", "")
 val pexelsApiKey = secretsProperties.getProperty("PEXELS_API_KEY", "")
     .replace("\\", "\\\\")
     .replace("\"", "\\\"")
+val googleWebClientId = secretsProperties.getProperty("GOOGLE_WEB_CLIENT_ID", "")
+    .replace("\\", "\\\\")
+    .replace("\"", "\\\"")
 
 android {
     namespace = "com.example.postly"
@@ -30,6 +33,7 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField("String", "API_BASE_URL", "\"$apiBaseUrl\"")
         buildConfigField("String", "PEXELS_API_KEY", "\"$pexelsApiKey\"")
+        buildConfigField("String", "GOOGLE_WEB_CLIENT_ID", "\"$googleWebClientId\"")
     }
 
     buildTypes {
@@ -62,6 +66,9 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.material.icons.extended)
     implementation(libs.coil.compose)
+    implementation(libs.androidx.credentials)
+    implementation(libs.androidx.credentials.play.services.auth)
+    implementation(libs.googleid)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

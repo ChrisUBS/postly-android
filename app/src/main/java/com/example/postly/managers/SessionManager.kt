@@ -22,6 +22,7 @@ class SessionManager(context: Context) {
     val isAuthenticated: Boolean get() = user != null
 
     suspend fun login(email: String, password: String): String? = runRequest { authService.login(email, password).user }
+    suspend fun loginWithGoogle(idToken: String): String? = runRequest { authService.loginWithGoogle(idToken).user }
     suspend fun register(name: String, email: String, password: String): String? = runRequest { authService.register(name, email, password).user }
 
     suspend fun checkSession() {
