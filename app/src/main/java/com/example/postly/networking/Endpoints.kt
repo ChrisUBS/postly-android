@@ -4,6 +4,7 @@ import java.net.URLEncoder
 
 sealed class Endpoint(val path: String) {
     data object LoginEmail : Endpoint("auth/login/email")
+    data object LoginGoogle : Endpoint("auth/login")
     data object RegisterEmail : Endpoint("auth/register")
     data object CheckAuth : Endpoint("auth/check")
     data class GetPosts(val page: Int, val limit: Int) : Endpoint("posts?page=$page&limit=$limit")
