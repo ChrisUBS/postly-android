@@ -8,7 +8,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.NotificationsNone
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
@@ -36,6 +39,9 @@ fun NavbarView(
     onSearchOpen: () -> Unit,
     onSearchClose: () -> Unit,
     onSearchSubmit: () -> Unit,
+    showNotifications: Boolean,
+    unreadNotificationCount: Int,
+    onNotificationsClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -75,10 +81,23 @@ fun NavbarView(
             IconButton(onClick = onSearchSubmit) {
                 Icon(Icons.AutoMirrored.Filled.Send, "Search", tint = PostlyBlue)
             }
+            if (showNotifications) NotificationButton(unreadNotificationCount, onNotificationsClick)
         } else {
             IconButton(onClick = onSearchOpen, modifier = Modifier.clip(CircleShape).background(Color(0x26000000))) {
                 Icon(Icons.Default.Search, "Search", tint = MutedText)
             }
+            if (showNotifications) NotificationButton(unreadNotificationCount, onNotificationsClick)
+        }
+    }
+}
+
+@Composable
+private fun NotificationButton(unreadCount: Int, onClick: () -> Unit) {
+    IconButton(onClick = onClick) {
+        BadgedBox(badge = {
+            if (unreadCount > 0) Badge { Text(if (unreadCount > 99) "99+" else unreadCount.toString()) }
+        }) {
+            Icon(Icons.Default.NotificationsNone, "Notifications", tint = MutedText)
         }
     }
 }

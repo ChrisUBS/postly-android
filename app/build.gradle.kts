@@ -18,6 +18,18 @@ val pexelsApiKey = secretsProperties.getProperty("PEXELS_API_KEY", "")
 val googleWebClientId = secretsProperties.getProperty("GOOGLE_WEB_CLIENT_ID", "")
     .replace("\\", "\\\\")
     .replace("\"", "\\\"")
+val firebaseApiKey = secretsProperties.getProperty("FIREBASE_API_KEY", "")
+    .replace("\\", "\\\\")
+    .replace("\"", "\\\"")
+val firebaseAppId = secretsProperties.getProperty("FIREBASE_APP_ID", "")
+    .replace("\\", "\\\\")
+    .replace("\"", "\\\"")
+val firebaseProjectId = secretsProperties.getProperty("FIREBASE_PROJECT_ID", "")
+    .replace("\\", "\\\\")
+    .replace("\"", "\\\"")
+val firebaseSenderId = secretsProperties.getProperty("FIREBASE_SENDER_ID", "")
+    .replace("\\", "\\\\")
+    .replace("\"", "\\\"")
 
 android {
     namespace = "com.example.postly"
@@ -34,6 +46,10 @@ android {
         buildConfigField("String", "API_BASE_URL", "\"$apiBaseUrl\"")
         buildConfigField("String", "PEXELS_API_KEY", "\"$pexelsApiKey\"")
         buildConfigField("String", "GOOGLE_WEB_CLIENT_ID", "\"$googleWebClientId\"")
+        buildConfigField("String", "FIREBASE_API_KEY", "\"$firebaseApiKey\"")
+        buildConfigField("String", "FIREBASE_APP_ID", "\"$firebaseAppId\"")
+        buildConfigField("String", "FIREBASE_PROJECT_ID", "\"$firebaseProjectId\"")
+        buildConfigField("String", "FIREBASE_SENDER_ID", "\"$firebaseSenderId\"")
     }
 
     buildTypes {
@@ -69,6 +85,8 @@ dependencies {
     implementation(libs.androidx.credentials)
     implementation(libs.androidx.credentials.play.services.auth)
     implementation(libs.googleid)
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.messaging)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

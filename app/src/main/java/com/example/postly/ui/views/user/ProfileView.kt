@@ -50,7 +50,12 @@ fun ProfileView(session: SessionManager, onCreatePost: () -> Unit, onPostClick: 
     LaunchedEffect(Unit) { loadPosts() }
 
     Column(modifier.fillMaxSize().background(Color(0xFFF8F9FB)).verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(20.dp)) {
-        ProfileCard(session, onCreatePost, onLogout)
+        ProfileCard(session, onCreatePost) {
+            scope.launch {
+                session.logout()
+                onLogout()
+            }
+        }
         PublicationsSection(posts, loading, error, deletingId, onCreatePost, onPostClick, onEditPost, onRetry = { scope.launch { loadPosts() } }, onDelete = { pendingDelete = it })
     }
     pendingDelete?.let { post ->

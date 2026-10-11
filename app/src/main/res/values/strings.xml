@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Postly</string>
+    <string name="notification_channel_name">Post activity</string>
+    <string name="notification_channel_description">Likes and comments on your publications</string>
 </resources>

@@ -16,6 +16,11 @@ sealed class Endpoint(val path: String) {
     data class GetComments(val postId: String) : Endpoint("posts/$postId/comments")
     data class CreateComment(val postId: String) : Endpoint("posts/$postId/comments")
     data class DeleteComment(val postId: String, val commentId: String) : Endpoint("posts/$postId/comments/$commentId")
+    data object GetNotifications : Endpoint("notifications")
+    data object RegisterNotificationDevice : Endpoint("notifications/device-token")
+    data object UnregisterNotificationDevice : Endpoint("notifications/device-token")
+    data class MarkNotificationRead(val id: String) : Endpoint("notifications/$id/read")
+    data object MarkAllNotificationsRead : Endpoint("notifications/read-all")
     data object GetMyPosts : Endpoint("users/me/posts")
     data class DeletePost(val id: String) : Endpoint("posts/$id")
 }

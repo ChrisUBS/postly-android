@@ -7,13 +7,16 @@ import androidx.compose.runtime.setValue
 import com.example.postly.models.User
 import com.example.postly.networking.APIClient
 import com.example.postly.services.AuthService
+import com.example.postly.services.PushTokenSync
 
 class SessionManager(context: Context) {
-    private val authManager = AuthManager(context)
+    private val applicationContext = context.applicationContext
+    private val authManager = AuthManager(applicationContext)
     private val apiClient = APIClient(authManager)
     private val authService = AuthService(apiClient, authManager)
     val postService = com.example.postly.services.PostService(apiClient)
     val commentService = com.example.postly.services.CommentService(apiClient)
+    val notificationService = com.example.postly.services.NotificationService(apiClient)
 
     var user: User? by mutableStateOf(null)
         private set
@@ -30,7 +33,11 @@ class SessionManager(context: Context) {
         runCatching { authService.checkAuth() }.onSuccess { user = it }.onFailure { logout() }
     }
 
-    fun logout() { authManager.logout(); user = null }
+    suspend fun logout() {
+        PushTokenSync.unregister(applicationContext, notificationService)
+        authManager.logout()
+        user = null
+    }
 
     private suspend fun runRequest(request: suspend () -> User): String? {
         isLoading = true
