@@ -27,6 +27,7 @@ fun BottomNavigationBar(isAuthenticated: Boolean, currentScreen: AppScreen, onNa
     )
     val selected = when (currentScreen) {
         AppScreen.POST_DETAIL -> AppScreen.POSTS
+        AppScreen.NOTIFICATIONS -> AppScreen.POSTS
         AppScreen.EDIT_POST -> AppScreen.CREATE_POST
         AppScreen.REGISTER -> AppScreen.LOGIN
         else -> currentScreen
