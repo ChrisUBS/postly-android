@@ -117,5 +117,8 @@ class PostServiceInstrumentedTest {
             calls += RecordedCall(endpoint.path, method, body, requiresAuth)
             return response
         }
+
+        override suspend fun requestRaw(endpoint: Endpoint, method: String, body: JSONObject?, requiresAuth: Boolean): String =
+            request(endpoint, method, body, requiresAuth).toString()
     }
 }
